@@ -1,0 +1,102 @@
+name: 单元测试
+
+on:
+  workflow_dispatch:
+    inputs:
+      go_versions:
+        description: "输入编译环境（参考：https://go.dev/dl）"
+        required: false
+        type: string
+        default: '["1.23", "1.24", "1.25"]'
+      target_platforms:
+        description: "输入目标平台"
+        required: false
+        type: string
+        default: '["windows-latest", "ubuntu-latest", "macos-latest"]'
+  workflow_call:
+    inputs:
+      go_versions:
+        description: "输入编译环境（参考：https://go.dev/dl）"
+        required: false
+        type: string
+        default: '["1.23", "1.24", "1.25"]'
+      target_platforms:
+        description: "输入目标平台"
+        required: false
+        type: string
+        default: '["windows-latest", "ubuntu-latest", "macos-latest"]'
+    outputs:
+      test_passed:
+        description: "测试是否通过"
+        value: ${{ jobs.test.outputs.passed }}
+
+permissions:
+  checks: write
+  contents: read
+  actions: read
+  security-events: write
+
+jobs:
+  test:
+    name: 测试 go${{ matrix.go }}.${{ matrix.os }} 环境
+    runs-on: ${{ matrix.os }}
+    env:
+      TZ: "Asia/Shanghai"
+    strategy:
+      fail-fast: false
+      matrix:
+        go: ${{ fromJson(github.event.inputs.go_versions || inputs.go_versions) }}
+        os: ${{ fromJson(github.event.inputs.target_platforms || inputs.target_platforms) }}
+    outputs:
+      passed: ${{ steps.test_result.outputs.passed }}
+
+    steps:
+      - name: 检出项目仓库
+        uses: actions/checkout@v4
+        with:
+          lfs: true
+
+      - name: 设置测试环境
+        uses: actions/setup-go@v5
+        with:
+          go-version: ${{ matrix.go }}
+
+      - name: 设置数据环境
+        uses: shogo82148/actions-setup-mysql@v1
+        with:
+          mysql-version: '8.0'
+          root-password: '123456'
+          auto-start: true
+      
+      - name: 运行单元测试
+        id: test_result
+        shell: bash
+        run: |
+          echo "🔍 开始测试..."
+
+          # 创建测试报告目录
+          mkdir -p test-reports
+
+          if ! go test -timeout 300s -v -cover -coverprofile=test-reports/coverage.out ./... > test-reports/output.log 2>&1; then
+            echo "❌ 测试失败"
+            cat test-reports/output.log
+            echo "passed=false" >> $GITHUB_OUTPUT
+            exit 1
+          fi
+
+          # 生成HTML格式的覆盖率报告
+          go tool cover -html=test-reports/coverage.out -o test-reports/coverage.html
+          # 显示覆盖率报告
+          echo "📊 覆盖率报告："
+          go tool cover -func=test-reports/coverage.out
+
+          echo "✅ 测试通过"
+          echo "passed=true" >> $GITHUB_OUTPUT
+
+      - name: 上传测试报告
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: test#${{ github.run_number }}.go${{ matrix.go }}.${{ matrix.os }}.reports
+          path: test-reports
+          retention-days: 14
