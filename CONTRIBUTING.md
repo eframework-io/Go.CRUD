@@ -1,6 +1,6 @@
 # 贡献指南
 
-[![贡献者](https://img.shields.io/github/contributors/eframework-io/Go.CRUD)](https://github.com/eframework-io/Go.CRUD/graphs/contributors)
+[![贡献人员](https://img.shields.io/github/contributors/eframework-io/Go.CRUD)](https://github.com/eframework-io/Go.CRUD/graphs/contributors)
 [![月度提交](https://img.shields.io/github/commit-activity/m/eframework-io/Go.CRUD)](https://github.com/eframework-io/Go.CRUD/graphs/commit-activity)
 [![最后提交](https://img.shields.io/github/last-commit/eframework-io/Go.CRUD)](https://github.com/eframework-io/Go.CRUD/commits/master)
 
@@ -18,7 +18,7 @@
 
 ### 2. 开发工具
 - go test：单元测试
-- Cursor/VS Code: 代码编辑器
+- VS Code：代码编辑器
 
 ### 3. 集成工具
 - Github Action：提供了自动化测试及发布工作流
@@ -89,10 +89,11 @@
 ```markdown
 # <项目名称>
 
-[![Reference](https://pkg.go.dev/badge/<组织名称>/<项目名称>.svg)](https://pkg.go.dev/<组织名称>/<项目名称>)
-[![Release](https://img.shields.io/github/v/tag/<组织名称>/<项目名称>)](https://github.com/<组织名称>/<项目名称>/tags)
-[![Report](https://goreportcard.com/badge/<组织名称>/<项目名称>)](https://goreportcard.com/report/<组织名称>/<项目名称>)
+[![Release](https://img.shields.io/github/v/tag/<组织名称>/<项目名称>?logo=github)](https://github.com/<组织名称>/<项目名称>/tags)
+[![Reference](https://pkg.go.dev/badge/github.com/<组织名称>/<项目名称>.svg)](https://pkg.go.dev/github.com/<组织名称>/<项目名称>)
+[![Report](https://goreportcard.com/badge/github.com/<组织名称>/<项目名称>)](https://goreportcard.com/report/github.com/<组织名称>/<项目名称>)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/<组织名称>/<项目名称>)
+[![Discord](https://img.shields.io/discord/<服务器编号>?label=Discord&logo=discord)](https://discord.gg/<永久邀请码>)
 
 <项目名称> 提供了/是一个/实现了 <核心功能>，支持/用于 <主要特性>。
 
@@ -124,9 +125,11 @@
 ```markdown
 # <模块名称>
 
-[![Reference](https://pkg.go.dev/badge/<组织名称>/<项目名称>/<模块名称>.svg)](https://pkg.go.dev/<组织名称>/<项目名称>/<模块名称>)
-[![Release](https://img.shields.io/github/v/tag/<组织名称>/<项目名称>)](https://github.com/<组织名称>/<项目名称>/tags)
-[![Report](https://goreportcard.com/badge/<组织名称>/<项目名称>)](https://goreportcard.com/report/<组织名称>/<项目名称>)
+[![Release](https://img.shields.io/github/v/tag/<组织名称>/<项目名称>?logo=github)](https://github.com/<组织名称>/<项目名称>/tags)
+[![Reference](https://pkg.go.dev/badge/github.com/<组织名称>/<项目名称>/<模块名称>.svg)](https://pkg.go.dev/github.com/<组织名称>/<项目名称>/<模块名称>)
+[![Report](https://goreportcard.com/badge/github.com/<组织名称>/<项目名称>)](https://goreportcard.com/report/github.com/<组织名称>/<项目名称>)
+[![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/<组织名称>/<项目名称>)
+[![Discord](https://img.shields.io/discord/<服务器编号>?label=Discord&logo=discord)](https://discord.gg/<永久邀请码>)
 
 <模块名称> 提供了/是一个/实现了 <核心功能>，支持/用于 <主要特性>。
 

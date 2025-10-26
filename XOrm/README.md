@@ -1,9 +1,10 @@
 # XOrm
 
+[![Release](https://img.shields.io/github/v/tag/eframework-io/Go.CRUD?logo=github)](https://github.com/eframework-io/Go.CRUD/tags)
 [![Reference](https://pkg.go.dev/badge/github.com/eframework-io/Go.CRUD/XOrm.svg)](https://pkg.go.dev/github.com/eframework-io/Go.CRUD/XOrm)
-[![Release](https://img.shields.io/github/v/tag/eframework-io/Go.CRUD)](https://github.com/eframework-io/Go.CRUD/tags)
 [![Report](https://goreportcard.com/badge/github.com/eframework-io/Go.CRUD)](https://goreportcard.com/report/github.com/eframework-io/Go.CRUD)
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/eframework-io/Go.CRUD)
+[![Discord](https://img.shields.io/discord/1422114598835851286?label=Discord&logo=discord)](https://discord.gg/XMPx2wXSz3)
 
 XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机制，提高了数据操作的效率。
 
