@@ -44,8 +44,8 @@
 ├── README.md              # 项目文档
 ├── CHANGELOG.md           # 更新记录
 ├── CONTRIBUTING.md        # 贡献指南
-├── LICENSE                # 开源协议
-└── .gitignore             # Git忽略
+├── LICENSE                # 许可协议
+└── ...
 ```
 
 ### 2. 命名规范
@@ -87,7 +87,7 @@
 文件路径：`<项目目录>/README.md`
 
 ```markdown
-# <项目名称>
+# <产品名称>
 
 [![Release](https://img.shields.io/github/v/tag/<组织名称>/<项目名称>?logo=github)](https://github.com/<组织名称>/<项目名称>/tags)
 [![Reference](https://pkg.go.dev/badge/github.com/<组织名称>/<项目名称>.svg)](https://pkg.go.dev/github.com/<组织名称>/<项目名称>)
@@ -95,7 +95,7 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/<组织名称>/<项目名称>)
 [![Discord](https://img.shields.io/discord/<服务器编号>?label=Discord&logo=discord)](https://discord.gg/<永久邀请码>)
 
-<项目名称> 提供了/是一个/实现了 <核心功能>，支持/用于 <主要特性>。
+提供了/实现了 <核心功能>，支持/用于 <主要特性>。
 
 ## 功能特性
 
@@ -131,7 +131,7 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/<组织名称>/<项目名称>)
 [![Discord](https://img.shields.io/discord/<服务器编号>?label=Discord&logo=discord)](https://discord.gg/<永久邀请码>)
 
-<模块名称> 提供了/是一个/实现了 <核心功能>，支持/用于 <主要特性>。
+提供了/实现了 <核心功能>，支持/用于 <主要特性>。
 
 ## 功能特性
 
@@ -173,7 +173,7 @@
 // license that can be found in the LICENSE file.
 
 /*
-<模块名称> 提供了/是一个/实现了 <核心功能>，支持/用于 <主要特性>。
+<模块名称> 提供了/实现了 <核心功能>，支持/用于 <主要特性>。
 
 功能特性
 
@@ -434,8 +434,8 @@ go test ./...
 [描述实际的结果]
 
 ### 环境信息
-- Go 版本：如 1.23.5
 - 操作系统：如 Windows 11
+- 目标平台：如 go1.25.0
 - 类库版本：如 1.0.0
 ```
 
