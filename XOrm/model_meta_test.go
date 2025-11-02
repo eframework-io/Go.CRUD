@@ -48,7 +48,7 @@ func TestModelMeta(t *testing.T) {
 	model2 := XObject.New[TestModelMeta2]()
 
 	// 检查模型是否已注册
-	Register(model1, true, true)
+	Meta(model1, true, true)
 	meta1 := getModelMeta(model1)
 	assert.NotNil(t, meta1, "已注册的模型描述信息不应为空。")
 	assert.Equal(t, "mytable1", meta1.table, "注册模型的名称应当和输入的一致。")
@@ -56,7 +56,7 @@ func TestModelMeta(t *testing.T) {
 	assert.Equal(t, true, meta1.writable, "注册模型的可写标识应当和输入的一致。")
 
 	// 测试注册多个模型
-	Register(model2, true, false)
+	Meta(model2, true, false)
 	meta2 := getModelMeta(model2)
 	assert.Equal(t, true, meta2.cache, "注册模型的缓存标识应当和输入的一致。")
 	assert.Equal(t, false, meta2.writable, "注册模型的可写标识应当和输入的一致。")
@@ -67,7 +67,7 @@ func TestModelMeta(t *testing.T) {
 			t.Error("重复注册相同模型时应当 panic。")
 		}
 	}()
-	Register(model1, true, true)
+	Meta(model1, true, true)
 
 	// 测试空模型
 	defer func() {
@@ -75,5 +75,5 @@ func TestModelMeta(t *testing.T) {
 			t.Error("注册空模型时应当 panic。")
 		}
 	}()
-	Register(nil, true, true)
+	Meta(nil, true, true)
 }

@@ -121,14 +121,14 @@ func getModelMeta(model IModel) *modelMeta {
 	return nil
 }
 
-// Register 注册一个模型。
+// Meta 注册一个模型。
 // model 为模型实例。
 // cache 指定是否缓存。
 // writable 指定是否可写。
 // 如果模型为 nil 或已注册，将触发 panic。
-func Register(model IModel, cache bool, writable bool) {
+func Meta(model IModel, cache bool, writable bool) {
 	if model == nil {
-		XLog.Panic("XOrm.Register: nil model instance.")
+		XLog.Panic("XOrm.Meta: nil model instance.")
 		return
 	}
 

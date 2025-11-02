@@ -11,11 +11,7 @@ import (
 	"github.com/eframework-io/Go.Utility/XPrefs"
 )
 
-const (
-	TestOrmAddr = "root:123456@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4&loc=Local"
-)
-
-func TestOrmInit(t *testing.T) {
+func TestOrmSource(t *testing.T) {
 	tests := []struct {
 		name        string
 		preferences XPrefs.IBase
@@ -23,32 +19,32 @@ func TestOrmInit(t *testing.T) {
 	}{
 		{
 			name: "Single",
-			preferences: XPrefs.New().Set("Orm/Source/MySQL/myalias", XPrefs.New().
-				Set(preferencesOrmAddr, TestOrmAddr).
-				Set(preferencesOrmPool, 10).
-				Set(preferencesOrmConn, 100)),
+			preferences: XPrefs.New().Set("XOrm/Source/MySQL/myalias", XPrefs.New().
+				Set(preferencesOrmSourceAddr, "root:123456@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4&loc=Local").
+				Set(preferencesOrmSourcePool, 10).
+				Set(preferencesOrmSourceConn, 100)),
 			panic: false,
 		},
 		{
 			name: "Multiple",
 			preferences: XPrefs.New().
-				Set("Orm/Source/MySQL/myalias1", XPrefs.New().
-					Set(preferencesOrmAddr, "root:123456@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4").
-					Set(preferencesOrmPool, 10).
-					Set(preferencesOrmConn, 100)).
-				Set("Orm/Source/MySQL/myalias2", XPrefs.New().
-					Set(preferencesOrmAddr, "root:123456@tcp(127.0.0.1:3306)/information_schema?charset=utf8mb4").
-					Set(preferencesOrmPool, 20).
-					Set(preferencesOrmConn, 200)),
+				Set("XOrm/Source/MySQL/myalias1", XPrefs.New().
+					Set(preferencesOrmSourceAddr, "root:123456@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4").
+					Set(preferencesOrmSourcePool, 10).
+					Set(preferencesOrmSourceConn, 100)).
+				Set("XOrm/Source/MySQL/myalias2", XPrefs.New().
+					Set(preferencesOrmSourceAddr, "root:123456@tcp(127.0.0.1:3306)/information_schema?charset=utf8mb4").
+					Set(preferencesOrmSourcePool, 20).
+					Set(preferencesOrmSourceConn, 200)),
 			panic: false,
 		},
 		{
 			name: "Invalid",
 			preferences: XPrefs.New().
-				Set("Orm/Source/MySQL/myalias3", XPrefs.New().
-					Set(preferencesOrmAddr, "root:wrongpass@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4").
-					Set(preferencesOrmPool, 10).
-					Set(preferencesOrmConn, 100)),
+				Set("XOrm/Source/MySQL/myalias3", XPrefs.New().
+					Set(preferencesOrmSourceAddr, "root:wrongpass@tcp(127.0.0.1:3306)/mysql?charset=utf8mb4").
+					Set(preferencesOrmSourcePool, 10).
+					Set(preferencesOrmSourceConn, 100)),
 			panic: true,
 		},
 	}
@@ -64,7 +60,7 @@ func TestOrmInit(t *testing.T) {
 						t.Errorf("setup() expected error")
 					}
 				}()
-				initializeOrm(test.preferences)
+				initOrmSource(test.preferences)
 				return
 			}
 
@@ -75,12 +71,12 @@ func TestOrmInit(t *testing.T) {
 						t.Errorf("setup() expected error")
 					}
 				}()
-				initializeOrm(test.preferences)
+				initOrmSource(test.preferences)
 				return
 			}
 
 			// Normal config test
-			initializeOrm(test.preferences)
+			initOrmSource(test.preferences)
 
 			// Test multiple database connections
 			aliases := []string{}

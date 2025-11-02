@@ -118,7 +118,7 @@ func SetupBaseTest(cacheAndWritable ...bool) {
 			writable = cacheAndWritable[1]
 		}
 	}
-	Register(NewTestBaseModel(), cache, writable)
+	Meta(NewTestBaseModel(), cache, writable)
 }
 
 // ResetBaseTest 删除测试数据库。

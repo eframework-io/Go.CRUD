@@ -16,7 +16,7 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 1. 多源配置
 
 配置说明：
-  - 配置键名：Orm/Source/<数据库类型>/<数据库别名>
+  - 配置键名：XOrm/Source/<数据库类型>/<数据库别名>
   - 支持 MySQL、PostgreSQL、SQLite3 等（Beego ORM 支持的类型）
   - 配置参数：
   - Addr：数据源地址
@@ -26,17 +26,17 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 配置示例：
 
 	{
-	    "Orm/Source/MySQL/Main": {
+	    "XOrm/Source/MySQL/Main": {
 	        "Addr": "root:123456@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&loc=Local",
 	        "Pool": 1,
 	        "Conn": 1
 	    },
-	    "Orm/Source/PostgreSQL/Log": {
+	    "XOrm/Source/PostgreSQL/Log": {
 	        "Addr": "postgres://user:pass@localhost:5432/dbname?sslmode=disable",
 	        "Pool": 2,
 	        "Conn": 10
 	    },
-	    "Orm/Source/SQLite3/Type": {
+	    "XOrm/Source/SQLite3/Type": {
 	        "Addr": "file:data.db?cache=shared&mode=rwc",
 	        "Pool": 1,
 	        "Conn": 1
@@ -129,15 +129,15 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 
 	// 用户模型：高频读取、写入且数据规模可控
 	// cache=true, writable=true
-	XOrm.Register(NewUser(), true, true)
+	XOrm.Meta(NewUser(), true, true)
 
 	// 配置模型：高频读取、无需写入
 	// cache=true, writable=false
-	XOrm.Register(NewConfig(), true, false)
+	XOrm.Meta(NewConfig(), true, false)
 
 	// 日志模型：高频写入，低频读取或者数据规模不可控
 	// cache=false, writable=true
-	XOrm.Register(NewLog(), false, true)
+	XOrm.Meta(NewLog(), false, true)
 
 2.4 条件查询
 
@@ -304,10 +304,10 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 
 	| 指标 | 类型 | 描述 |
 	|------|------|------|
-	| xorm_commit_queue | Gauge | 所有队列中等待提交的对象总数 |
-	| xorm_commit_total | Counter | 所有队列已经提交的对象总数 |
-	| xorm_commit_queue_{n} | Gauge | 第 n 个队列中等待提交的对象数量 |
-	| xorm_commit_total_{n} | Counter | 第 n 个队列已经提交的对象总数 |
+	| xorm_context_commit_queue | Gauge | 所有队列中等待提交的对象总数 |
+	| xorm_context_commit_total | Counter | 所有队列已经提交的对象总数 |
+	| xorm_context_commit_queue_{n} | Gauge | 第 n 个队列中等待提交的对象数量 |
+	| xorm_context_commit_total_{n} | Counter | 第 n 个队列已经提交的对象总数 |
 
 3.3 可选配置
 
@@ -315,14 +315,14 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 
 配置参数：
 
-  - Orm/Commit/Queue：提交队列的数量，默认为 CPU 核心数，-1 表示禁用提交队列
-  - Orm/Commit/Queue/Capacity：单个队列的容量，默认为 100000
+  - XOrm/Context/Commit/Queue：提交队列的数量，默认为 CPU 核心数，-1 表示禁用提交队列
+  - XOrm/Context/Commit/Capacity：单个队列的容量，默认为 100000
 
 配置示例：
 
 	{
-	    "Orm/Commit/Queue": 8,
-	    "Orm/Commit/Queue/Capacity": 100000
+	    "XOrm/Context/Commit/Queue": 8,
+	    "XOrm/Context/Commit/Capacity": 100000
 	}
 
 更多信息请参考模块文档。

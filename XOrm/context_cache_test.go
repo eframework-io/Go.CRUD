@@ -25,7 +25,7 @@ func TestContextCache(t *testing.T) {
 	}
 	ResetBaseTest()
 	for _, model := range models {
-		Register(model, true, false)
+		Meta(model, true, false)
 	}
 
 	t.Run("Pool", func(t *testing.T) {
@@ -215,7 +215,7 @@ func TestContextCache(t *testing.T) {
 			setGlobalCache(data)
 			isGlobalListed(model, true)
 			globalLock(model)
-			globalIncrementMap.Store(fmt.Sprintf("%v_%v", model.ModelUnique(), "id"), 1000)
+			globalIncreMap.Store(fmt.Sprintf("%v_%v", model.ModelUnique(), "id"), 1000)
 		}
 
 		var ctt = Print()
@@ -223,33 +223,31 @@ func TestContextCache(t *testing.T) {
 		assert.NotEmpty(t, ctt, "打印缓存信息应当不为空。")
 
 		// 验证输出内容包含所有必要的部分
-		assert.Contains(t, ctt, "[Data]", "输出应包含 Data 章节标记")
-		assert.Contains(t, ctt, "[List]", "输出应包含 List 章节标记")
-		assert.Contains(t, ctt, "[Increment]", "输出应包含 Increment 自增值章节标记")
-		assert.Contains(t, ctt, "[Lock]", "输出应包含 Lock 章节标记")
+		assert.Contains(t, ctt, "[Data]", "输出应包含 Data 章节标记。")
+		assert.Contains(t, ctt, "[List]", "输出应包含 List 章节标记。")
+		assert.Contains(t, ctt, "[Incre]", "输出应包含 Incre 章节标记。")
+		assert.Contains(t, ctt, "[Lock]", "输出应包含 Lock 章节标记。")
 
 		// 验证对象部分内容
-		assert.Contains(t, ctt, "testcache_model1_0 = {\"ID\":0}", "输出应包含第一个模型对象")
-		assert.Contains(t, ctt, "testcache_model2_1 = {\"ID\":1}", "输出应包含第二个模型对象")
+		assert.Contains(t, ctt, "testcache_model1_0 = {\"ID\":0}", "输出应包含第一个模型对象。")
+		assert.Contains(t, ctt, "testcache_model2_1 = {\"ID\":1}", "输出应包含第二个模型对象。")
 
 		// 验证列举部分内容
-		assert.Contains(t, ctt, "testcache_model1 = true", "输出应包含第一个模型的列举状态")
-		assert.Contains(t, ctt, "testcache_model2 = true", "输出应包含第二个模型的列举状态")
+		assert.Contains(t, ctt, "testcache_model1 = true", "输出应包含第一个模型的列举状态。")
+		assert.Contains(t, ctt, "testcache_model2 = true", "输出应包含第二个模型的列举状态。")
 
 		// 验证最大值部分内容
-		assert.Contains(t, ctt, "testcache_model1_id = 1000", "输出应包含第一个模型的最大值信息")
-		assert.Contains(t, ctt, "testcache_model2_id = 1000", "输出应包含第二个模型的最大值信息")
+		assert.Contains(t, ctt, "testcache_model1_id = 1000", "输出应包含第一个模型的最大值信息。")
+		assert.Contains(t, ctt, "testcache_model2_id = 1000", "输出应包含第二个模型的最大值信息。")
 
 		// 验证锁部分内容
-		assert.Contains(t, ctt, "testcache_model1", "输出应包含第一个模型的锁信息")
-		assert.Contains(t, ctt, "testcache_model2", "输出应包含第二个模型的锁信息")
+		assert.Contains(t, ctt, "testcache_model1", "输出应包含第一个模型的锁信息。")
+		assert.Contains(t, ctt, "testcache_model2", "输出应包含第二个模型的锁信息。")
 	})
 }
 
 // ResetContext 重置会话上下文。
-func ResetContext() {
-	Dump()
-}
+func ResetContext() { Dump() }
 
 type TestCacheModel interface {
 	IModel

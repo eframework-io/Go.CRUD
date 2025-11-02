@@ -29,20 +29,20 @@ var (
 
 // context 定义了 CRUD 操作的上下文信息，用于管理操作的生命周期。
 type context struct {
-	time           int  // 操作开始时间
-	writable       bool // 是否读写操作
-	readCount      int  // 读取操作次数
-	readCost       int  // 读取操作耗时
-	listCount      int  // 列举操作次数
-	listCost       int  // 列举操作耗时
-	writeCount     int  // 写入操作次数
-	writeCost      int  // 写入操作耗时
-	deleteCount    int  // 删除操作次数
-	deleteCost     int  // 删除操作耗时
-	clearCount     int  // 清除操作次数
-	clearCost      int  // 清除操作耗时
-	incrementCount int  // 自增操作次数
-	incrementCost  int  // 自增操作耗时
+	time        int  // 操作开始时间
+	writable    bool // 是否读写操作
+	readCount   int  // 读取操作次数
+	readCost    int  // 读取操作耗时
+	listCount   int  // 列举操作次数
+	listCost    int  // 列举操作耗时
+	writeCount  int  // 写入操作次数
+	writeCost   int  // 写入操作耗时
+	deleteCount int  // 删除操作次数
+	deleteCost  int  // 删除操作耗时
+	clearCount  int  // 清除操作次数
+	clearCost   int  // 清除操作耗时
+	increCount  int  // 自增操作次数
+	increCost   int  // 自增操作耗时
 }
 
 // reset 重置上下文状态。
@@ -59,8 +59,8 @@ func (ctx *context) reset() {
 	ctx.deleteCost = 0
 	ctx.clearCount = 0
 	ctx.clearCost = 0
-	ctx.incrementCount = 0
-	ctx.incrementCost = 0
+	ctx.increCount = 0
+	ctx.increCost = 0
 }
 
 // getContext 根据 goroutine ID 获取上下文实例。
@@ -154,9 +154,9 @@ func Defer() {
 					crudLog += fmt.Sprintf("[Clear(%v):%.2fms] ", ctx.clearCount, float64(ctx.clearCost)/1e3)
 					otherCost -= ctx.clearCost
 				}
-				if ctx.incrementCount > 0 {
-					crudLog += fmt.Sprintf("[Increment(%v):%.2fms] ", ctx.incrementCount, float64(ctx.incrementCost)/1e3)
-					otherCost -= ctx.incrementCost
+				if ctx.increCount > 0 {
+					crudLog += fmt.Sprintf("[Incre(%v):%.2fms] ", ctx.increCount, float64(ctx.increCost)/1e3)
+					otherCost -= ctx.increCost
 				}
 				XLog.Info("XOrm.Defer: context has been deferred, cost %.2fms for %v[Self:%.2fms] [Other:%.2fms].",
 					float64((XTime.GetMicrosecond()-ctx.time))/1e3,
@@ -175,7 +175,7 @@ func Defer() {
 		}
 		if scache != nil {
 			if ctx.writable {
-				batch = commitBatchPool.Get().(*commitBatch)
+				batch = contextCommitBatchPool.Get().(*commitBatch)
 				tag := XLog.Tag() // 保持和上下文一致的日志标签
 				if tag != nil {
 					batch.tag = tag.Clone()

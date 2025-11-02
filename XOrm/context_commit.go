@@ -24,52 +24,52 @@ import (
 )
 
 const (
-	// preferencesCommitQueueCount 定义了提交队列的数量的偏好设置键。
-	preferencesCommitQueueCount = "Orm/Commit/Queue"
+	// preferencesContextCommitQueueCount 定义了提交队列的数量的偏好设置键。
+	preferencesContextCommitQueueCount = "XOrm/Context/Commit/Queue"
 
-	// preferencesCommitQueueCapacity 定义了单个队列的容量的偏好设置键。
-	preferencesCommitQueueCapacity = "Orm/Commit/Queue/Capacity"
+	// preferencesContextCommitQueueCapacity 定义了单个队列的容量的偏好设置键。
+	preferencesContextCommitQueueCapacity = "XOrm/Context/Commit/Capacity"
 )
 
 var (
-	// commitQueueCount 定义了提交队列的数量，默认为 CPU 核心数。
-	commitQueueCount int = runtime.NumCPU()
+	// contextCommitQueueCount 定义了提交队列的数量，默认为 CPU 核心数。
+	contextCommitQueueCount int = runtime.NumCPU()
 
-	// commitQueueCapacity 定义了单个队列的容量，当超过此容量时，新的批次将被丢弃。
-	commitQueueCapacity int = 100000
+	// contextCommitQueueCapacity 定义了单个队列的容量，当超过此容量时，新的批次将被丢弃。
+	contextCommitQueueCapacity int = 100000
 
-	// commitQueues 定义了提交队列的切片，用于缓冲待处理的批次数据。
-	commitQueues []chan *commitBatch
+	// contextCommitQueues 定义了提交队列的切片，用于缓冲待处理的批次数据。
+	contextCommitQueues []chan *commitBatch
 
-	// commitGauge 定义了提交队列的计数器，用于统计所有队列等待提交的对象数量。
-	commitGauge prometheus.Gauge
+	// contextCommitGauge 定义了提交队列的计数器，用于统计所有队列等待提交的对象数量。
+	contextCommitGauge prometheus.Gauge
 
-	// commitCounter 定义了提交队列的计数器，用于统计所有队列已经提交的对象总数。
-	commitCounter prometheus.Counter
+	// contextCommitCounter 定义了提交队列的计数器，用于统计所有队列已经提交的对象总数。
+	contextCommitCounter prometheus.Counter
 
-	// commitGauges 定义了提交队列的计数器，用于统计指定队列等待提交的对象数量。
-	commitGauges []prometheus.Gauge
+	// contextCommitGauges 定义了提交队列的计数器，用于统计指定队列等待提交的对象数量。
+	contextCommitGauges []prometheus.Gauge
 
-	// commitCounters 定义了提交队列的计数器，用于统计指定队列已经提交的对象总数。
-	commitCounters []prometheus.Counter
+	// contextCommitCounters 定义了提交队列的计数器，用于统计指定队列已经提交的对象总数。
+	contextCommitCounters []prometheus.Counter
 
-	// commitSetupSig 定义了提交队列的信号通道，用于接收退出信号。
-	commitSetupSig []chan os.Signal
+	// contextCommitSetupSig 定义了提交队列的信号通道，用于接收退出信号。
+	contextCommitSetupSig []chan os.Signal
 
-	// commitFlushWait 定义了提交队列的等待通道，用于等待批次处理完成。
-	commitFlushWait []chan *sync.WaitGroup
+	// contextCommitFlushWait 定义了提交队列的等待通道，用于等待批次处理完成。
+	contextCommitFlushWait []chan *sync.WaitGroup
 
-	// commitCloseWait 定义了提交队列的关闭通道，用于等待所有队列关闭完成。
-	commitCloseWait sync.WaitGroup
+	// contextCommitCloseWait 定义了提交队列的关闭通道，用于等待所有队列关闭完成。
+	contextCommitCloseWait sync.WaitGroup
 
-	// commitFlushSig 定义了提交批次是否已刷新的标志，用于控制批次的状态。
-	commitFlushSig int32
+	// contextCommitFlushSig 定义了提交批次是否已刷新的标志，用于控制批次的状态。
+	contextCommitFlushSig int32
 
-	// commitCloseSig 定义了提交队列是否已关闭的标志，用于控制队列的状态。
-	commitCloseSig int32
+	// contextCommitCloseSig 定义了提交队列是否已关闭的标志，用于控制队列的状态。
+	contextCommitCloseSig int32
 
-	// commitBatchPool 定义了批次对象的对象池，用于重用已创建的批次对象。
-	commitBatchPool sync.Pool = sync.Pool{
+	// contextCommitBatchPool 定义了批次对象的对象池，用于重用已创建的批次对象。
+	contextCommitBatchPool sync.Pool = sync.Pool{
 		New: func() any {
 			obj := new(commitBatch)
 			obj.reset()
@@ -78,79 +78,79 @@ var (
 	}
 )
 
-func init() { initializeCommit(XPrefs.Asset()) }
+func init() { initContextCommit(XPrefs.Asset()) }
 
-// initializeCommit 初始化提交队列。
+// initContextCommit 初始化提交队列。
 // 该函数会从 preferences 中获取提交队列的数量和批次大小，并启动提交队列循环。
-func initializeCommit(preferences XPrefs.IBase) {
+func initContextCommit(preferences XPrefs.IBase) {
 	Close()
 
-	commitQueueCount = preferences.GetInt(preferencesCommitQueueCount, runtime.NumCPU())
-	if commitQueueCount < 0 {
-		XLog.Notice("XOrm.Commit.Setup: ignore to setup commit queue.")
+	contextCommitQueueCount = preferences.GetInt(preferencesContextCommitQueueCount, runtime.NumCPU())
+	if contextCommitQueueCount < 0 {
+		XLog.Notice("XOrm.Context.Commit: ignore to setup commit queue.")
 		return
 	}
 
-	commitQueueCapacity = preferences.GetInt(preferencesCommitQueueCapacity, 100000)
-	if commitQueueCapacity <= 0 {
-		XLog.Panic("XOrm.Commit.Setup: capacity of queue is negative or zero: %v.", commitQueueCapacity)
+	contextCommitQueueCapacity = preferences.GetInt(preferencesContextCommitQueueCapacity, 100000)
+	if contextCommitQueueCapacity <= 0 {
+		XLog.Panic("XOrm.Context.Commit: capacity of queue is negative or zero: %v.", contextCommitQueueCapacity)
 		return
 	}
 
-	commitQueues = make([]chan *commitBatch, commitQueueCount)
-	commitGauge = prometheus.NewGauge(prometheus.GaugeOpts{
-		Name: "xorm_commit_queue",
+	contextCommitQueues = make([]chan *commitBatch, contextCommitQueueCount)
+	contextCommitGauge = prometheus.NewGauge(prometheus.GaugeOpts{
+		Name: "xorm_context_commit_queue",
 		Help: "The total number of pending commit objects.",
 	})
-	prometheus.MustRegister(commitGauge)
-	commitCounter = prometheus.NewCounter(prometheus.CounterOpts{
-		Name: "xorm_commit_total",
+	prometheus.MustRegister(contextCommitGauge)
+	contextCommitCounter = prometheus.NewCounter(prometheus.CounterOpts{
+		Name: "xorm_context_commit_total",
 		Help: "The total number of committed objects.",
 	})
-	prometheus.MustRegister(commitCounter)
-	commitGauges = make([]prometheus.Gauge, commitQueueCount)
-	commitCounters = make([]prometheus.Counter, commitQueueCount)
-	commitSetupSig = make([]chan os.Signal, commitQueueCount)
-	commitFlushWait = make([]chan *sync.WaitGroup, commitQueueCount)
-	for i := range commitQueueCount {
-		commitQueues[i] = make(chan *commitBatch, commitQueueCapacity)
-		commitSetupSig[i] = make(chan os.Signal, 1)
-		commitFlushWait[i] = make(chan *sync.WaitGroup, 1)
+	prometheus.MustRegister(contextCommitCounter)
+	contextCommitGauges = make([]prometheus.Gauge, contextCommitQueueCount)
+	contextCommitCounters = make([]prometheus.Counter, contextCommitQueueCount)
+	contextCommitSetupSig = make([]chan os.Signal, contextCommitQueueCount)
+	contextCommitFlushWait = make([]chan *sync.WaitGroup, contextCommitQueueCount)
+	for i := range contextCommitQueueCount {
+		contextCommitQueues[i] = make(chan *commitBatch, contextCommitQueueCapacity)
+		contextCommitSetupSig[i] = make(chan os.Signal, 1)
+		contextCommitFlushWait[i] = make(chan *sync.WaitGroup, 1)
 	}
 
-	commitCloseWait = sync.WaitGroup{}
-	atomic.StoreInt32(&commitFlushSig, 0)
-	atomic.StoreInt32(&commitCloseSig, 0)
+	contextCommitCloseWait = sync.WaitGroup{}
+	atomic.StoreInt32(&contextCommitFlushSig, 0)
+	atomic.StoreInt32(&contextCommitCloseSig, 0)
 
 	// 启动提交队列线程
 	wg := sync.WaitGroup{}
-	for i := range commitQueueCount {
+	for i := range contextCommitQueueCount {
 		wg.Add(1)
 
-		commitGauges[i] = prometheus.NewGauge(prometheus.GaugeOpts{
-			Name: fmt.Sprintf("xorm_commit_queue_%v", i),
+		contextCommitGauges[i] = prometheus.NewGauge(prometheus.GaugeOpts{
+			Name: fmt.Sprintf("xorm_context_commit_queue_%v", i),
 			Help: fmt.Sprintf("The total number of pending commit objects in queue %v.", i),
 		})
-		prometheus.MustRegister(commitGauges[i])
+		prometheus.MustRegister(contextCommitGauges[i])
 
-		commitCounters[i] = prometheus.NewCounter(prometheus.CounterOpts{
-			Name: fmt.Sprintf("xorm_commit_total_%v", i),
+		contextCommitCounters[i] = prometheus.NewCounter(prometheus.CounterOpts{
+			Name: fmt.Sprintf("xorm_context_commit_total_%v", i),
 			Help: fmt.Sprintf("The total number of committed objects in queue %v.", i),
 		})
-		prometheus.MustRegister(commitCounters[i])
+		prometheus.MustRegister(contextCommitCounters[i])
 
 		XLoom.RunAsyncT2(func(queueID int, doneOnce *sync.Once) {
-			setupSig := commitSetupSig[queueID]
+			setupSig := contextCommitSetupSig[queueID]
 			signal.Notify(setupSig, syscall.SIGTERM, syscall.SIGINT)
 
 			quit.GetWaiter().Add(1)
-			commitCloseWait.Add(1)
+			contextCommitCloseWait.Add(1)
 			doneOnce.Do(func() { // 确保只调用一次，否则recover后会重复调用
 				wg.Done() // 确保线程启动完成
 			})
 
-			flushSig := commitFlushWait[queueID]
-			queue := commitQueues[queueID] // 提交队列，用于接收批次数据
+			flushSig := contextCommitFlushWait[queueID]
+			queue := contextCommitQueues[queueID] // 提交队列，用于接收批次数据
 
 			defer func() {
 				// 处理剩余的批次
@@ -164,7 +164,7 @@ func initializeCommit(preferences XPrefs.IBase) {
 					}
 				}
 				quit.GetWaiter().Done()
-				commitCloseWait.Done()
+				contextCommitCloseWait.Done()
 			}()
 
 			for {
@@ -187,13 +187,13 @@ func initializeCommit(preferences XPrefs.IBase) {
 					fwg.Done()
 				case sig, ok := <-setupSig:
 					if ok {
-						XLog.Notice("XOrm.Commit.Setup(%v): receive signal of %v.", queueID, sig.String())
+						XLog.Notice("XOrm.Context.Commit(%v): receive signal of %v.", queueID, sig.String())
 					} else {
-						XLog.Notice("XOrm.Commit.Setup(%v): channel of signal is closed.", queueID)
+						XLog.Notice("XOrm.Context.Commit(%v): channel of signal is closed.", queueID)
 					}
 					return
 				case <-quit.GetQuitChannel():
-					XLog.Notice("XOrm.Commit.Setup(%v): receive signal of quit.", queueID)
+					XLog.Notice("XOrm.Context.Commit(%v): receive signal of quit.", queueID)
 					return
 				}
 			}
@@ -201,7 +201,7 @@ func initializeCommit(preferences XPrefs.IBase) {
 	}
 	wg.Wait()
 
-	XLog.Notice("XOrm.Commit.Setup: commit queue size is %v, and each queue has a capacity of %v.", commitQueueCount, commitQueueCapacity)
+	XLog.Notice("XOrm.Context.Commit: commit queue size is %v, and each queue has a capacity of %v.", contextCommitQueueCount, contextCommitQueueCapacity)
 }
 
 // commitBatch 定义了一批需要处理的数据对象，用于批量异步处理数据变更。
@@ -224,7 +224,7 @@ func (cb *commitBatch) reset() {
 
 // submit 提交批次对象至队列中，等待被处理。
 func (cb *commitBatch) submit(gid ...int64) {
-	if atomic.LoadInt32(&commitCloseSig) > 0 {
+	if atomic.LoadInt32(&contextCommitCloseSig) > 0 {
 		return
 	}
 
@@ -238,15 +238,15 @@ func (cb *commitBatch) submit(gid ...int64) {
 	}
 
 	// 确保 queue ID 在 0 到 commitQueueCount 之间，相同的 goroutine ID 会被分配到同一个队列。
-	queueID := max(int(ggid)%commitQueueCount, 0)
-	queue := commitQueues[queueID]
+	queueID := max(int(ggid)%contextCommitQueueCount, 0)
+	queue := contextCommitQueues[queueID]
 
 	select {
 	case queue <- cb:
 		// 更新数据度量。
 		delta := float64(len(cb.objects))
-		commitGauge.Add(delta)
-		commitGauges[queueID].Add(delta)
+		contextCommitGauge.Add(delta)
+		contextCommitGauges[queueID].Add(delta)
 	default:
 		XLog.Critical("XOrm.Commit.Submit: too many data to submit.")
 	}
@@ -300,7 +300,7 @@ func (cb *commitBatch) push(queueID int) {
 	}
 
 	cb.reset()
-	commitBatchPool.Put(cb)
+	contextCommitBatchPool.Put(cb)
 }
 
 // handle 处理批次对象中的单个数据对象。
@@ -336,10 +336,10 @@ func (cb *commitBatch) handle(sobj *sessionObject, queueID int) {
 	}
 
 	// 更新数据度量。
-	commitCounter.Inc()
-	commitCounters[queueID].Inc()
-	commitGauge.Dec()
-	commitGauges[queueID].Dec()
+	contextCommitCounter.Inc()
+	contextCommitCounters[queueID].Inc()
+	contextCommitGauge.Dec()
+	contextCommitGauges[queueID].Dec()
 
 	if action != "" {
 		t2 := XTime.GetMicrosecond()
@@ -351,7 +351,7 @@ func (cb *commitBatch) handle(sobj *sessionObject, queueID int) {
 // gid 参数为 goroutine ID，若未指定，则使用当前 goroutine ID，
 // 若 gid 为 -1，则表示等待所有的队列提交完成。
 func Flush(gid ...int64) {
-	if atomic.LoadInt32(&commitCloseSig) == 0 {
+	if atomic.LoadInt32(&contextCommitCloseSig) == 0 {
 		var ggid int64
 		if len(gid) > 0 {
 			ggid = gid[0]
@@ -359,9 +359,9 @@ func Flush(gid ...int64) {
 			ggid = goid.Get()
 		}
 		if ggid == -1 {
-			if atomic.CompareAndSwapInt32(&commitFlushSig, 0, 1) {
-				for index := range commitQueues {
-					sig := commitFlushWait[index]
+			if atomic.CompareAndSwapInt32(&contextCommitFlushSig, 0, 1) {
+				for index := range contextCommitQueues {
+					sig := contextCommitFlushWait[index]
 					if sig != nil {
 						wg := &sync.WaitGroup{}
 						wg.Add(1)
@@ -370,12 +370,12 @@ func Flush(gid ...int64) {
 						XLog.Notice("XOrm.Flush: batches of commit queue-%v has been flushed.", index)
 					}
 				}
-				atomic.CompareAndSwapInt32(&commitFlushSig, 1, 0)
+				atomic.CompareAndSwapInt32(&contextCommitFlushSig, 1, 0)
 				XLog.Notice("XOrm.Flush: batches of all commit queue has been flushed.")
 			}
 		} else {
-			queueID := max(int(ggid)%commitQueueCount, 0)
-			sig := commitFlushWait[queueID]
+			queueID := max(int(ggid)%contextCommitQueueCount, 0)
+			sig := contextCommitFlushWait[queueID]
 			if sig != nil {
 				wg := &sync.WaitGroup{}
 				wg.Add(1)
@@ -390,28 +390,28 @@ func Flush(gid ...int64) {
 // Close 关闭所有的提交队列并等待所有未完成的批次处理完成。
 // 此函数会发送退出信号并等待所有队列完成当前工作。
 func Close() {
-	if atomic.CompareAndSwapInt32(&commitCloseSig, 0, 1) {
-		for _, sig := range commitSetupSig {
+	if atomic.CompareAndSwapInt32(&contextCommitCloseSig, 0, 1) {
+		for _, sig := range contextCommitSetupSig {
 			signal.Stop(sig)
 			close(sig)
 		}
 		// 等待所有队列完成。
-		commitCloseWait.Wait()
+		contextCommitCloseWait.Wait()
 
 		// 注销数据度量。
-		if commitGauge != nil {
-			prometheus.Unregister(commitGauge)
+		if contextCommitGauge != nil {
+			prometheus.Unregister(contextCommitGauge)
 		}
-		if commitCounter != nil {
-			prometheus.Unregister(commitCounter)
+		if contextCommitCounter != nil {
+			prometheus.Unregister(contextCommitCounter)
 		}
-		if len(commitGauges) != 0 {
-			for _, gauge := range commitGauges {
+		if len(contextCommitGauges) != 0 {
+			for _, gauge := range contextCommitGauges {
 				prometheus.Unregister(gauge)
 			}
 		}
-		if len(commitCounters) != 0 {
-			for _, counter := range commitCounters {
+		if len(contextCommitCounters) != 0 {
+			for _, counter := range contextCommitCounters {
 				prometheus.Unregister(counter)
 			}
 		}

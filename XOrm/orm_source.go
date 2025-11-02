@@ -17,28 +17,26 @@ import (
 )
 
 const (
-	preferencesOrmAddr = "Addr"
-	preferencesOrmPool = "Pool"
-	preferencesOrmConn = "Conn"
+	preferencesOrmSourceAddr = "Addr"
+	preferencesOrmSourcePool = "Pool"
+	preferencesOrmSourceConn = "Conn"
 )
 
-func init() {
-	initializeOrm(XPrefs.Asset())
-}
+func init() { initOrmSource(XPrefs.Asset()) }
 
-func initializeOrm(preferences XPrefs.IBase) {
+func initOrmSource(preferences XPrefs.IBase) {
 	if preferences == nil {
-		XLog.Panic("XOrm.initializeOrm: preferences is nil.")
+		XLog.Panic("XOrm.Source.Init: preferences is nil.")
 		return
 	}
 
 	for _, key := range preferences.Keys() {
-		if !strings.HasPrefix(key, "Orm/Source") {
+		if !strings.HasPrefix(key, "XOrm/Source") {
 			continue
 		}
 		parts := strings.Split(key, "/")
 		if len(parts) < 4 {
-			XLog.Panic("XOrm.initializeOrm: invalid preferences key %v.", key)
+			XLog.Panic("XOrm.Source.Init: invalid preferences key %v.", key)
 			return
 		}
 
@@ -46,17 +44,17 @@ func initializeOrm(preferences XPrefs.IBase) {
 		ormAlias := parts[3]
 
 		if base := preferences.Get(key).(XPrefs.IBase); base != nil {
-			ormAddr := XString.Eval(base.GetString(preferencesOrmAddr), XEnv.Vars())
-			ormPool := base.GetInt(preferencesOrmPool)
-			ormConn := base.GetInt(preferencesOrmConn)
+			ormAddr := XString.Eval(base.GetString(preferencesOrmSourceAddr), XEnv.Vars())
+			ormPool := base.GetInt(preferencesOrmSourcePool)
+			ormConn := base.GetInt(preferencesOrmSourceConn)
 			if err := orm.RegisterDataBase(ormAlias, ormType, ormAddr,
 				orm.MaxIdleConnections(ormPool),
 				orm.MaxOpenConnections(ormConn)); err != nil {
-				XLog.Panic("XOrm.initializeOrm: register database %v failed, err: %v", ormAlias, err)
+				XLog.Panic("XOrm.Source.Init: register database %v failed, err: %v", ormAlias, err)
 				return
 			}
 		} else {
-			XLog.Error("XOrm.initializeOrm: invalid config for %v", key)
+			XLog.Error("XOrm.Source.Init: invalid config for %v", key)
 			continue
 		}
 	}

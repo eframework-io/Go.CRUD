@@ -25,8 +25,8 @@ var (
 	// globalLockMap 存储全局锁标记，键为模型标识，值为 WaitGroup。
 	globalLockMap sync.Map
 
-	// globalIncrementMap 存储全局自增值，键为模型标识 + 字段名称，值为当前的最大值。
-	globalIncrementMap sync.Map
+	// globalIncreMap 存储全局自增值，键为模型标识 + 字段名称，值为当前的最大值。
+	globalIncreMap sync.Map
 
 	// globalIncreMutex 用于确定全局自增值的原子性。
 	globalIncreMutex sync.Mutex
@@ -247,7 +247,7 @@ func Dump(models ...IModel) {
 	if len(models) == 0 {
 		globalCacheMap.Clear()
 		globalListMap.Clear()
-		globalIncrementMap.Clear()
+		globalIncreMap.Clear()
 		globalLockMap.Range(func(key, value any) bool {
 			value.(*sync.WaitGroup).Done()
 			return true
@@ -265,7 +265,7 @@ func Dump(models ...IModel) {
 			globalListMap.Delete(key)
 
 			var deleteIncres []string
-			globalIncrementMap.Range(func(k, v any) bool {
+			globalIncreMap.Range(func(k, v any) bool {
 				gkey := k.(string)
 				if XString.StartsWith(gkey, key) {
 					deleteIncres = append(deleteIncres, gkey)
@@ -274,7 +274,7 @@ func Dump(models ...IModel) {
 			})
 			if len(deleteIncres) > 0 {
 				for _, k := range deleteIncres {
-					globalIncrementMap.Delete(k)
+					globalIncreMap.Delete(k)
 				}
 			}
 
@@ -291,7 +291,7 @@ func Dump(models ...IModel) {
 //
 //	[Data]: 缓存数据
 //	[List]: 列举状态
-//	[Increment]: 自增记录
+//	[Incre]: 自增记录
 //	[Lock]: 数据锁状态
 func Print() string {
 	cacheDumpWait.Wait()
@@ -317,8 +317,8 @@ func Print() string {
 		return true
 	})
 
-	ctt.WriteString("[Increment]\n")
-	globalIncrementMap.Range(func(k, v any) bool {
+	ctt.WriteString("[Incre]\n")
+	globalIncreMap.Range(func(k, v any) bool {
 		ctt.WriteString(fmt.Sprintf("\t%v = %v\n", k, v))
 		return true
 	})
