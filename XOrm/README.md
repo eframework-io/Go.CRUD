@@ -6,7 +6,7 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/eframework-io/Go.CRUD)
 [![Discord](https://img.shields.io/discord/1422114598835851286?label=Discord&logo=discord)](https://discord.gg/XMPx2wXSz3)
 
-XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机制，提高了数据操作的效率。
+拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机制，提高了数据操作的效率。
 
 ## 功能特性
 
@@ -21,7 +21,7 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 通过解析首选项中的配置自动初始化数据库连接。
 
 配置说明：
-- 配置键名：`Orm/Source/<数据库类型>/<数据库别名>`
+- 配置键名：`XOrm/Source/<数据库类型>/<数据库别名>`
   - 支持 MySQL、PostgreSQL、SQLite3 等（Beego ORM 支持的类型）
 - 配置参数：
   - Addr：数据源地址
@@ -31,17 +31,17 @@ XOrm 拓展了 Beego 的 ORM 功能，同时实现了基于上下文的事务机
 配置示例：
 ```json
 {
-    "Orm/Source/MySQL/Main": {
+    "XOrm/Source/MySQL/Main": {
         "Addr": "root:123456@tcp(127.0.0.1:3306)/dbname?charset=utf8mb4&loc=Local",
         "Pool": 1,
         "Conn": 1
     },
-    "Orm/Source/PostgreSQL/Log": {
+    "XOrm/Source/PostgreSQL/Log": {
         "Addr": "postgres://user:pass@localhost:5432/dbname?sslmode=disable",
         "Pool": 2,
         "Conn": 10
     },
-    "Orm/Source/SQLite3/Type": {
+    "XOrm/Source/SQLite3/Type": {
         "Addr": "file:data.db?cache=shared&mode=rwc",
         "Pool": 1,
         "Conn": 1
@@ -140,15 +140,15 @@ Matchs(cond ...*condition) bool // 条件匹配
 ```go
 // 用户模型：高频读取、写入且数据规模可控
 // cache=true, writable=true
-XOrm.Register(NewUser(), true, true)
+XOrm.Meta(NewUser(), true, true)
 
 // 配置模型：高频读取、无需写入
 // cache=true, writable=false
-XOrm.Register(NewConfig(), true, false)
+XOrm.Meta(NewConfig(), true, false)
 
 // 日志模型：高频写入，低频读取或者数据规模不可控
 // cache=false, writable=true
-XOrm.Register(NewLog(), false, true)
+XOrm.Meta(NewLog(), false, true)
 ```
 
 #### 2.4 条件查询
@@ -326,10 +326,10 @@ XOrm.List(&users, cond) // 依次检查会话缓存、全局缓存、远端数�
 
 | 指标 | 类型 | 描述 |
 |------|------|------|
-| `xorm_commit_queue` | Gauge | 所有队列中等待提交的对象总数 |
-| `xorm_commit_total` | Counter | 所有队列已经提交的对象总数 |
-| `xorm_commit_queue_{n}` | Gauge | 第 n 个队列中等待提交的对象数量 |
-| `xorm_commit_total_{n}` | Counter | 第 n 个队列已经提交的对象总数 |
+| `xorm_context_commit_queue` | Gauge | 所有队列中等待提交的对象总数 |
+| `xorm_context_commit_total` | Counter | 所有队列已经提交的对象总数 |
+| `xorm_context_commit_queue_{n}` | Gauge | 第 n 个队列中等待提交的对象数量 |
+| `xorm_context_commit_total_{n}` | Counter | 第 n 个队列已经提交的对象总数 |
 
 #### 3.3 可选配置
 
@@ -337,15 +337,15 @@ XOrm.List(&users, cond) // 依次检查会话缓存、全局缓存、远端数�
 
 配置参数：
 
-- `Orm/Commit/Queue`：提交队列的数量，默认为 CPU 核心数，-1 表示禁用提交队列
-- `Orm/Commit/Queue/Capacity`：单个队列的容量，默认为 100000
+- `XOrm/Context/Commit/Queue`：提交队列的数量，默认为 CPU 核心数，-1 表示禁用提交队列
+- `XOrm/Context/Commit/Capacity`：单个队列的容量，默认为 100000
 
 配置示例：
 
 ```json
 {
-    "Orm/Commit/Queue": 8,
-    "Orm/Commit/Queue/Capacity": 100000
+    "XOrm/Context/Commit/Queue": 8,
+    "XOrm/Context/Commit/Capacity": 100000
 }
 ```
 
@@ -363,7 +363,7 @@ stateDiagram-v2
     state Init {
         direction TB
         [*] --> orm.RegisterDataBase: 解析配置选项
-        orm.RegisterDataBase --> XOrm.Register(): 注册数据模型
+        orm.RegisterDataBase --> XOrm.Meta(): 注册数据模型
     }
 
     state Watch {
@@ -424,8 +424,8 @@ stateDiagram-v2
         [*] --> XOrm.Clear(): 数据清除操作
         XOrm.Clear() --> 同步缓存数据: datas.IsValid(false) sobj.clear = cond
 
-        [*] --> XOrm.Increment(): 索引自增操作
-        XOrm.Increment() --> 同步缓存数据: globalIncreMap
+        [*] --> XOrm.Incre(): 索引自增操作
+        XOrm.Incre() --> 同步缓存数据: globalIncreMap
     }
 ```
 

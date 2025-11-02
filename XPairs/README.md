@@ -6,7 +6,7 @@
 [![DeepWiki](https://img.shields.io/badge/DeepWiki-Explore-blue)](https://deepwiki.com/eframework-io/Go.CRUD)
 [![Discord](https://img.shields.io/discord/1422114598835851286?label=Discord&logo=discord)](https://discord.gg/XMPx2wXSz3)
 
-XPairs 提供了 NoSQL 的键值对存储功能，支持高性能的数据读写和缓存操作。
+提供了 NoSQL 的键值对存储功能，支持高性能的数据读写和缓存操作。
 
 ## 功能特性
 
