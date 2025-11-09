@@ -4,7 +4,7 @@ go 1.23
 
 require (
 	github.com/beego/beego/v2 v2.3.4
-	github.com/eframework-io/Go.Utility v1.0.0
+	github.com/eframework-io/Go.Utility v1.1.0
 	github.com/go-sql-driver/mysql v1.9.0
 	github.com/illumitacit/gostd v0.7.1
 	github.com/petermattis/goid v0.0.0-20250813065127-a731cc31b4fe
