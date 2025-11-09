@@ -44,7 +44,7 @@ func initOrmSource(preferences XPrefs.IBase) {
 		ormAlias := parts[3]
 
 		if base := preferences.Get(key).(XPrefs.IBase); base != nil {
-			ormAddr := XString.Eval(base.GetString(preferencesOrmSourceAddr), XEnv.Vars())
+			ormAddr := XString.Eval(base.GetString(preferencesOrmSourceAddr), XEnv.Instance())
 			ormPool := base.GetInt(preferencesOrmSourcePool)
 			ormConn := base.GetInt(preferencesOrmSourceConn)
 			if err := orm.RegisterDataBase(ormAlias, ormType, ormAddr,
