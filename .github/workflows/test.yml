@@ -25,10 +25,6 @@ on:
         required: false
         type: string
         default: '["windows-latest", "ubuntu-latest", "macos-latest"]'
-    outputs:
-      test_passed:
-        description: "测试是否通过"
-        value: ${{ jobs.test.outputs.passed }}
 
 permissions:
   checks: write
@@ -52,9 +48,9 @@ jobs:
 
     steps:
       - name: 检出项目仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          lfs: true
+          fetch-depth: 0
 
       - name: 设置测试环境
         uses: actions/setup-go@v5
@@ -64,10 +60,10 @@ jobs:
       - name: 设置数据环境
         uses: shogo82148/actions-setup-mysql@v1
         with:
-          mysql-version: '8.0'
-          root-password: '123456'
+          mysql-version: "8.0"
+          root-password: "123456"
           auto-start: true
-      
+
       - name: 运行单元测试
         id: test_result
         shell: bash
@@ -94,8 +90,8 @@ jobs:
           echo "passed=true" >> $GITHUB_OUTPUT
 
       - name: 上传测试报告
-        uses: actions/upload-artifact@v4
         if: always()
+        uses: actions/upload-artifact@v5
         with:
           name: test#${{ github.run_number }}.go${{ matrix.go }}.${{ matrix.os }}.reports
           path: test-reports

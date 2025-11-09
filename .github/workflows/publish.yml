@@ -6,11 +6,6 @@ on:
       new_version:
         description: "输入发布版本（如：1.0.0，默认递增）"
         required: false
-      skip_test:
-        description: "是否忽略测试"
-        type: boolean
-        default: false
-        required: false
       confirm_repo:
         description: "确认仓库名称"
         required: true
@@ -33,9 +28,8 @@ jobs:
           exit 1
 
       - name: 检出项目仓库
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
-          lfs: true
           fetch-depth: 0
 
       - name: 计算版本名称
@@ -121,7 +115,6 @@ jobs:
   test:
     name: 运行单元测试
     needs: prepare
-    if: ${{ github.event.inputs.skip_test != 'true' }}
     permissions:
       checks: write
       contents: read
@@ -132,7 +125,7 @@ jobs:
   publish:
     name: 运行版本发布
     needs: [prepare, test]
-    if: ${{ needs.test.result == 'success' || needs.test.result == 'skipped' }}
+    if: ${{ needs.test.result == 'success' }}
     runs-on: ubuntu-latest
     env:
       TZ: "Asia/Shanghai"
@@ -140,9 +133,7 @@ jobs:
       contents: write
     steps:
       - name: 检出项目仓库
-        uses: actions/checkout@v4
-        with:
-          lfs: true
+        uses: actions/checkout@v5
 
       - name: 提交版本标签
         shell: bash
@@ -150,10 +141,9 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           VERSION="${{ needs.prepare.outputs.new_version }}"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
           git tag -a "v$VERSION" -m "chore: 发布 v$VERSION"
-          git pull origin
           git push origin "v$VERSION"
 
       - name: 创建发行版本
@@ -167,9 +157,18 @@ jobs:
           draft: false
           prerelease: false
 
-      - name: 版本发布完成
+      - name: 通知发布版本
         run: |
-          echo "版本: v${{ needs.prepare.outputs.new_version }}"
-          echo "标签: https://github.com/${{ github.repository }}/releases/tag/v${{ needs.prepare.outputs.new_version }}"
-          echo "注册表: https://pkg.go.dev/github.com/${{ github.repository }}@v${{ needs.prepare.outputs.new_version }}"
-          echo "代码报告: https://goreportcard.com/report/github.com/${{ github.repository }}"
+          if [ -n "${{ secrets.DISCORD_APP_GITHUB_RELEASE }}" ]; then
+            echo "发送 Discord 通知..."
+            curl -H "Content-Type: application/json" \
+                 -d "$(jq -n \
+                      --arg title "🚀 ${{ github.event.repository.name }} 发布了新版本：${{ needs.prepare.outputs.release_title }}" \
+                      --arg url "https://github.com/${{ github.repository }}/releases/tag/v${{ needs.prepare.outputs.new_version }}" \
+                      --arg desc "${{ needs.prepare.outputs.release_content }}" \
+                      '{embeds: [{title: $title, url: $url, description: $desc, color: 5814783}]}')" \
+                 ${{ secrets.DISCORD_APP_GITHUB_RELEASE }}
+            echo "Discord 通知发送完成"
+          else
+            echo "跳过 Discord 通知：DISCORD_APP_GITHUB_RELEASE 未配置"
+          fi
