@@ -12,7 +12,7 @@
 
 ## 技术路线
 
-- 编程语言：Go 1.23+
+- 目标平台：Go 1.23+
 - 单元测试：Go Testing
 - 开发工具：VS Code
 - 集成工具：Github Actions
